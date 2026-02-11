@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug CRGM-API</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        .warning { color: #ff0; }
+        pre { background: #111; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnóstico CRGM-API</h1>
+    <div id="results"></div>
+    
+    <script type="module">
+        const results = document.getElementById('results');
+        
+        function log(message, type = 'success') {
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = message;
+            results.appendChild(p);
+        }
+        
+        async function runDiagnostics() {
+            log('=== INICIANDO DIAGNÓSTICOS ===', 'warning');
+            
+            // Test 1: Imports
+            try {
+                log('✓ Intentando importar DatabaseManager...');
+                const { default: DatabaseManager } = await import('./js/core/database.js');
+                log('✓ DatabaseManager importado correctamente');
+                log(`  - Nombre: ${DatabaseManager.name}`);
+                log(`  - Versión: ${DatabaseManager.version}`);
+                
+                log('✓ Intentando importar AuthManager...');
+                const { default: AuthManager } = await import('./js/core/auth.js');
+                log('✓ AuthManager importado correctamente');
+                log(`  - Nombre: ${AuthManager.name}`);
+                log(`  - Versión: ${AuthManager.version}`);
+                
+                log('✓ Intentando importar ModuleManager...');
+                const { default: ModuleManager } = await import('./js/core/modules.js');
+                log('✓ ModuleManager importado correctamente');
+                log(`  - Nombre: ${ModuleManager.name}`);
+                log(`  - Versión: ${ModuleManager.version}`);
+                
+                // Test 2: Inicialización
+                log('\\n=== PROBANDO INICIALIZACIÓN ===', 'warning');
+                
+                log('✓ Inicializando DatabaseManager...');
+                await DatabaseManager.init();
+                log('✓ DatabaseManager inicializado');
+                
+                log('✓ Inicializando AuthManager...');
+                await AuthManager.init();
+                log('✓ AuthManager inicializado');
+                
+                log('✓ Inicializando ModuleManager...');
+                await ModuleManager.init();
+                log('✓ ModuleManager inicializado');
+                
+                log('\\n=== RESULTADO ===', 'warning');
+                log('🎉 TODOS LOS MÓDULOS FUNCIONAN CORRECTAMENTE', 'success');
+                log('\\nEl problema debe estar en otro lado. Verifica:', 'warning');
+                log('1. ¿Estás en http://localhost:8000 (no file://)?');
+                log('2. ¿Limpiaste el caché (Ctrl+Shift+R)?');
+                log('3. Abre la consola (F12) en index.html y copia los errores rojos aquí');
+                
+            } catch (error) {
+                log('\\n✗ ERROR ENCONTRADO:', 'error');
+                log(`Tipo: ${error.name}`, 'error');
+                log(`Mensaje: ${error.message}`, 'error');
+                log(`Stack:`, 'error');
+                const pre = document.createElement('pre');
+                pre.className = 'error';
+                pre.textContent = error.stack || 'No stack trace';
+                results.appendChild(pre);
+                
+                log('\\n🔧 POSIBLES SOLUCIONES:', 'warning');
+                if (error.message.includes('Failed to fetch')) {
+                    log('- El servidor no está corriendo o está en el directorio equivocado', 'warning');
+                    log('- Ejecuta: cd /home/crgm-unix/Desktop/CRGM-API && ./iniciar.sh', 'warning');
+                } else if (error.message.includes('import')) {
+                    log('- Problema con rutas de archivos', 'warning');
+                    log('- Verifica que estés en http://localhost:8000', 'warning');
+                }
+            }
+        }
+        
+        runDiagnostics();
+    </script>
+</body>
+</html>

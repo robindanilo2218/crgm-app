@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CRGM-API Module Configuration",
+  "description": "Configuración central de módulos activos/inactivos",
+  "version": "1.0.0",
+  "lastUpdate": "2026-02-10T12:00:00Z",
+  
+  "core": {
+    "description": "Módulos obligatorios del sistema (no se pueden desactivar)",
+    "modules": [
+      {
+        "id": "core.database",
+        "name": "Database Manager",
+        "file": "core/database.js",
+        "enabled": true,
+        "required": true,
+        "priority": 1
+      },
+      {
+        "id": "core.auth",
+        "name": "Authentication System",
+        "file": "core/auth.js",
+        "enabled": true,
+        "required": true,
+        "priority": 2
+      },
+      {
+        "id": "core.modules",
+        "name": "Module Manager",
+        "file": "core/modules.js",
+        "enabled": true,
+        "required": true,
+        "priority": 3
+      },
+      {
+        "id": "core.router",
+        "name": "Router",
+        "file": "core/router.js",
+        "enabled": true,
+        "required": true,
+        "priority": 4
+      },
+      {
+        "id": "core.events",
+        "name": "Event Bus",
+        "file": "core/events.js",
+        "enabled": true,
+        "required": true,
+        "priority": 5
+      }
+    ]
+  },
+  
+  "essential": {
+    "description": "Módulos esenciales para operación básica (MVP)",
+    "modules": [
+      {
+        "id": "scanner",
+        "name": "QR/Barcode Scanner",
+        "file": "modules/scanner.js",
+        "enabled": true,
+        "required": false,
+        "priority": 10,
+        "permissions": {
+          "camera": true
+        },
+        "dependencies": []
+      },
+      {
+        "id": "loto",
+        "name": "LOTO Digital",
+        "file": "modules/loto.js",
+        "enabled": true,
+        "required": false,
+        "priority": 11,
+        "permissions": {
+          "camera": true,
+          "geolocation": true
+        },
+        "dependencies": ["scanner"]
+      },
+      {
+        "id": "assets",
+        "name": "Asset Management",
+        "file": "modules/assets.js",
+        "enabled": true,
+        "required": false,
+        "priority": 12,
+        "permissions": {
+          "geolocation": true
+        },
+        "dependencies": ["scanner"]
+      },
+      {
+        "id": "inventory",
+        "name": "Inventory System",
+        "file": "modules/inventory.js",
+        "enabled": true,
+        "required": false,
+        "priority": 13,
+        "permissions": {},
+        "dependencies": ["scanner", "assets"]
+      }
+    ]
+  },
+  
+  "optional": {
+    "description": "Módulos opcionales que agregan funcionalidad",
+    "modules": [
+      {
+        "id": "diagrams",
+        "name": "Electrical Diagrams Editor",
+        "file": "modules/diagrams.js",
+        "enabled": false,
+        "required": false,
+        "priority": 20,
+        "permissions": {},
+        "dependencies": [],
+        "config": {
+          "gridColumns": 10,
+          "symbolLibrary": "iec-60617"
+        }
+      },
+      {
+        "id": "production",
+        "name": "Production Management (OEE/SMED)",
+        "file": "modules/production.js",
+        "enabled": false,
+        "required": false,
+        "priority": 21,
+        "permissions": {},
+        "dependencies": ["assets"]
+      },
+      {
+        "id": "maintenance",
+        "name": "Maintenance System",
+        "file": "modules/maintenance.js",
+        "enabled": false,
+        "required": false,
+        "priority": 22,
+        "permissions": {
+          "notifications": true
+        },
+        "dependencies": ["assets", "inventory"]
+      },
+      {
+        "id": "projects",
+        "name": "Project Management",
+        "file": "modules/projects.js",
+        "enabled": false,
+        "required": false,
+        "priority": 23,
+        "permissions": {},
+        "dependencies": ["assets"]
+      },
+      {
+        "id": "sync",
+        "name": "Synchronization System (Zas Protocol)",
+        "file": "modules/sync.js",
+        "enabled": false,
+        "required": false,
+        "priority": 24,
+        "permissions": {
+          "bluetooth": true,
+          "webrtc": true
+        },
+        "dependencies": [],
+        "config": {
+          "methods": ["qr", "bluetooth", "webrtc", "drive"],
+          "autoSync": false,
+          "syncInterval": 300000
+        }
+      },
+      {
+        "id": "ar-overlay",
+        "name": "Augmented Reality Overlay",
+        "file": "modules/ar-overlay.js",
+        "enabled": false,
+        "required": false,
+        "priority": 25,
+        "permissions": {
+          "camera": true,
+          "deviceorientation": true
+        },
+        "dependencies": ["assets"],
+        "experimental": true
+      },
+      {
+        "id": "analytics",
+        "name": "Analytics & Reports",
+        "file": "modules/analytics.js",
+        "enabled": false,
+        "required": false,
+        "priority": 26,
+        "permissions": {},
+        "dependencies": ["assets", "inventory", "production"]
+      },
+      {
+        "id": "chat",
+        "name": "Contextual Chat",
+        "file": "modules/chat.js",
+        "enabled": false,
+        "required": false,
+        "priority": 27,
+        "permissions": {
+          "notifications": true
+        },
+        "dependencies": ["sync"]
+      }
+    ]
+  },
+  
+  "admin": {
+    "description": "Módulos de administración (solo Token Rey)",
+    "modules": [
+      {
+        "id": "admin.users",
+        "name": "User Management",
+        "file": "modules/admin/users.js",
+        "enabled": true,
+        "required": false,
+        "priority": 30,
+        "minLevel": 999,
+        "permissions": {},
+        "dependencies": []
+      },
+      {
+        "id": "admin.tokens",
+        "name": "Token Management",
+        "file": "modules/admin/tokens.js",
+        "enabled": true,
+        "required": false,
+        "priority": 31,
+        "minLevel": 999,
+        "permissions": {},
+        "dependencies": []
+      },
+      {
+        "id": "admin.audit",
+        "name": "Audit Log Viewer",
+        "file": "modules/admin/audit.js",
+        "enabled": true,
+        "required": false,
+        "priority": 32,
+        "minLevel": 50,
+        "permissions": {},
+        "dependencies": []
+      },
+      {
+        "id": "admin.backup",
+        "name": "Backup Manager",
+        "file": "modules/admin/backup.js",
+        "enabled": true,
+        "required": false,
+        "priority": 33,
+        "minLevel": 50,
+        "permissions": {},
+        "dependencies": []
+      }
+    ]
+  },
+  
+  "settings": {
+    "autoLoadModules": true,
+    "lazyLoadOptional": true,
+    "enableErrorReporting": true,
+    "debugMode": false,
+    "offlineMode": true,
+    "cacheStrategy": "cache-first",
+    "maxCacheSize": 524288000,
+    "modulesPath": "/js/modules/",
+    "assetsPath": "/assets/"
+  },
+  
+  "permissions": {
+    "description": "Configuración global de permisos",
+    "levels": {
+      "1": "Usuario Temporal",
+      "10": "Técnico",
+      "50": "Gerente",
+      "999": "Token Rey"
+    },
+    "capabilities": {
+      "camera": ["scanner", "loto", "ar-overlay"],
+      "geolocation": ["loto", "assets", "maintenance"],
+      "notifications": ["maintenance", "chat"],
+      "bluetooth": ["sync"],
+      "webrtc": ["sync"],
+      "deviceorientation": ["ar-overlay"]
+    }
+  },
+  
+  "features": {
+    "enableQRSync": true,
+    "enableBluetoothSync": false,
+    "enableDriveSync": false,
+    "enableAR": false,
+    "enableOfflineFirst": true,
+    "enableAutoBackup": true,
+    "enableEncryption": true,
+    "enableObfuscation": true
+  },
+  
+  "performance": {
+    "maxConcurrentModules": 10,
+    "moduleTimeout": 5000,
+    "dbCacheSize": 100,
+    "imageCacheSize": 50,
+    "compressionEnabled": true,
+    "lazyLoadImages": true
+  },
+  
+  "security": {
+    "tokenExpiration": 86400000,
+    "maxLoginAttempts": 5,
+    "lockoutDuration": 900000,
+    "requireStrongPasswords": false,
+    "enableTwoFactor": false,
+    "auditAllActions": true,
+    "encryptSensitiveData": true
+  }
+}

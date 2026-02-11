@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CRGM-API</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+        .success { color: #0f0; }
+        .error { color: #f00; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test CRGM-API</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        // Test 1: Servidor funcionando
+        results.innerHTML += '<p class="success">✓ HTML cargado correctamente</p>';
+        
+        // Test 2: IndexedDB disponible
+        if ('indexedDB' in window) {
+            results.innerHTML += '<p class="success">✓ IndexedDB disponible</p>';
+        } else {
+            results.innerHTML += '<p class="error">✗ IndexedDB NO disponible</p>';
+        }
+        
+        // Test 3: Service Worker
+        if ('serviceWorker' in navigator) {
+            results.innerHTML += '<p class="success">✓ Service Worker soportado</p>';
+        } else {
+            results.innerHTML += '<p class="error">✗ Service Worker NO soportado</p>';
+        }
+        
+        // Test 4: Fetch API
+        fetch('/manifest.json')
+            .then(r => r.json())
+            .then(() => {
+                results.innerHTML += '<p class="success">✓ Fetch API funciona</p>';
+                results.innerHTML += '<p class="success">✓ Servidor HTTP funcionando correctamente</p>';
+                results.innerHTML += '<br><p style="color:#ff0">🎉 TODO FUNCIONA! Ahora puedes abrir: <a href="/" style="color:#0ff">index.html</a></p>';
+            })
+            .catch(err => {
+                results.innerHTML += '<p class="error">✗ Error: ' + err.message + '</p>';
+                results.innerHTML += '<p class="error">El servidor NO está corriendo o estás usando file://</p>';
+            });
+    </script>
+</body>
+</html>

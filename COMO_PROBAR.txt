@@ -1,0 +1,117 @@
+====================================================================
+CRGM-API - CÓMO PROBAR LA APLICACIÓN
+====================================================================
+
+PROBLEMA COMÚN: "Error al inicializar la aplicación"
+
+Este error ocurre ANTES de poder ingresar el token y se debe a que
+los navegadores bloquean módulos ES6 cuando se abre el archivo 
+directamente (file://). 
+
+SOLUCIÓN: USAR UN SERVIDOR HTTP LOCAL
+
+====================================================================
+PASO 1: INICIAR EL SERVIDOR
+====================================================================
+
+Abrir terminal y ejecutar:
+
+cd /home/crgm-unix/Desktop/CRGM-API/src
+python3 -m http.server 8000
+
+Dejar la terminal abierta (el servidor debe seguir corriendo)
+
+====================================================================
+PASO 2: ABRIR EN EL NAVEGADOR
+====================================================================
+
+En Chrome, Firefox o Edge, visitar:
+
+http://localhost:8000
+
+O también:
+
+http://127.0.0.1:8000
+
+====================================================================
+PASO 3: VERIFICAR QUE CARGA CORRECTAMENTE
+====================================================================
+
+Deberías ver:
+- Pantalla negra con texto verde
+- Modal de login pidiendo "Ingresa tu Token"
+- NO debe aparecer "Error al inicializar la aplicación"
+
+====================================================================
+PASO 4: INGRESAR EL TOKEN
+====================================================================
+
+Token por defecto: CRGM2026
+
+Nivel: 999 (Administrador - Token Rey)
+
+====================================================================
+QUÉ REVISAR SI AÚN HAY ERROR:
+====================================================================
+
+1. ABRIR DEVTOOLS (F12 en el navegador)
+
+2. IR A LA PESTAÑA "Console"
+
+3. BUSCAR MENSAJES DE ERROR
+
+Errores comunes:
+
+- "Failed to load module": El servidor no está corriendo
+- "CORS policy": Necesitas usar http://localhost, no file://
+- "404 Not Found": Verifica que estés en el directorio correcto
+
+====================================================================
+VERIFICACIÓN DEL SERVIDOR
+====================================================================
+
+Para verificar que el servidor está corriendo:
+
+En otra terminal, ejecutar:
+curl http://localhost:8000/
+
+Debería mostrar el HTML de la página
+
+====================================================================
+COMANDOS ÚTILES
+====================================================================
+
+# Ver si el servidor está corriendo:
+ps aux | grep python3 | grep 8000
+
+# Detener el servidor:
+pkill -f "python3 -m http.server 8000"
+
+# Ver logs del servidor:
+# (Los mensajes aparecen en la terminal donde lo iniciaste)
+
+====================================================================
+TOKEN POR DEFECTO
+====================================================================
+
+Usuario: Administrador
+Token: CRGM2026
+Nivel: 999 (Token Rey - acceso total)
+
+Este token se crea automáticamente la primera vez que inicias
+la aplicación.
+
+====================================================================
+RESUMEN RÁPIDO
+====================================================================
+
+1. cd /home/crgm-unix/Desktop/CRGM-API/src
+2. python3 -m http.server 8000
+3. Abrir navegador: http://localhost:8000
+4. Ingresar token: CRGM2026
+5. ¡Listo!
+
+====================================================================
+
+Si el problema persiste, abre DevTools (F12) y revisa la pestaña
+Console para ver el error exacto.

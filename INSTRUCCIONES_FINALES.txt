@@ -1,0 +1,96 @@
+================================================================
+CRGM-API - INSTRUCCIONES FINALES (LEE ESTO COMPLETO)
+================================================================
+
+EL SERVIDOR YA ESTÁ CORRIENDO EN EL PUERTO 8001
+
+================================================================
+PASO 1: ABRE TU NAVEGADOR
+================================================================
+
+Abre Chrome, Firefox o Edge
+
+================================================================
+PASO 2: COPIA Y PEGA ESTA URL EN LA BARRA DE DIRECCIONES
+================================================================
+
+http://localhost:8001/test-simple.html
+
+Presiona ENTER
+
+================================================================
+PASO 3: QUÉ DEBERÍAS VER
+================================================================
+
+Si todo funciona, verás una pantalla negra con texto verde que dice:
+
+✓ HTML cargado correctamente
+✓ IndexedDB disponible
+✓ Service Worker soportado
+✓ Fetch API funciona
+✓ Servidor HTTP funcionando correctamente
+🎉 TODO FUNCIONA!
+
+================================================================
+PASO 4: SI EL TEST FUNCIONA, ABRE LA APP REAL
+================================================================
+
+En la misma barra de direcciones, copia y pega:
+
+http://localhost:8001/
+
+(O haz clic en el link "index.html" que aparece en la página de test)
+
+================================================================
+PASO 5: DEBERÍAS VER
+================================================================
+
+- Pantalla negra con diseño industrial
+- Un cuadro en el centro pidiendo "Ingresa tu Token"
+- Campo de texto para escribir
+- Botón "Acceder"
+
+================================================================
+PASO 6: INGRESA EL TOKEN
+================================================================
+
+Token: CRGM2026
+
+Presiona "Acceder"
+
+================================================================
+QUÉ HACER SI VES "ERROR AL INICIALIZAR"
+================================================================
+
+Esto SOLO puede pasar si:
+
+1. NO estás usando http://localhost:8001/
+   (sino que abriste el archivo haciendo doble clic)
+   
+2. El servidor no está corriendo
+
+Para verificar el servidor, abre una terminal y ejecuta:
+
+ps aux | grep "python3 -m http.server"
+
+Deberías ver una línea que dice "python3 -m http.server 8001"
+
+Si NO aparece, reinicia el servidor:
+
+cd /home/crgm-unix/Desktop/CRGM-API/src
+python3 -m http.server 8001
+
+================================================================
+RESUMEN ULTRA RÁPIDO
+================================================================
+
+1. Abre navegador
+2. Ve a: http://localhost:8001/test-simple.html
+3. Si funciona, ve a: http://localhost:8001/
+4. Ingresa token: CRGM2026
+5. ¡Listo!
+
+================================================================
+EL SERVIDOR YA ESTÁ CORRIENDO
+No necesitas hacer nada más que abrir el navegador
+================================================================

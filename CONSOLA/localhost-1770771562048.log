@@ -1,0 +1,49 @@
+app.js:28 🚀 CRGM-API Iniciando...
+app.js:29 [INIT] Versión: 1.0.0
+app.js:33 [INIT] Paso 1/4: Registrando Service Worker...
+app.js:100 [SW] ✓ Service Worker registrado: http://localhost:8000/
+app.js:37 [INIT] Paso 2/4: Inicializando módulos core...
+database.js:18 [DB] Inicializando IndexedDB...
+database.js:31 [DB] ✓ Base de datos lista
+auth.js:19 [AUTH] Inicializando...
+auth.js:26 [AUTH] ✓ Sistema listo
+modules.js:17 [MODULES] Inicializando gestor modular...
+modules.js:34 [MODULES] Configuración cargada
+modules.js:23 [MODULES] ✓ Gestor listo
+modules.js:60 [MODULES] ✓ Registrado: core.database
+modules.js:60 [MODULES] ✓ Registrado: core.auth
+modules.js:60 [MODULES] ✓ Registrado: core.modules
+app.js:138 [INIT] Inicializando módulos adicionales...
+diagrams.js:16 [diagrams] Inicializando...
+diagrams.js:37 [diagrams] Error: Error: Dependencias core no disponibles
+    at Object.init (diagrams.js:21:15)
+    at initCoreModules (app.js:140:26)
+    at async init (app.js:38:5)
+init @ diagrams.js:37
+initCoreModules @ app.js:140
+await in initCoreModules
+init @ app.js:38
+await in init
+(anónimas) @ app.js:532
+modules.js:60 [MODULES] ✓ Registrado: diagrams
+app.js:143 [INIT] ✓ Módulo Diagrams cargado
+projects.js:15 [projects] Inicializando...
+projects.js:27 [projects] Error: Error: Dependencias core no disponibles
+    at Object.init (projects.js:20:15)
+    at initCoreModules (app.js:149:26)
+    at async init (app.js:38:5)
+init @ projects.js:27
+initCoreModules @ app.js:149
+await in initCoreModules
+init @ app.js:38
+await in init
+(anónimas) @ app.js:532
+modules.js:60 [MODULES] ✓ Registrado: projects
+app.js:152 [INIT] ✓ Módulo Projects cargado
+app.js:41 [INIT] Paso 3/4: Configurando interfaz...
+app.js:45 [INIT] Paso 4/4: Verificando autenticación...
+app.js:48 ✅ CRGM-API Lista y Operativa
+app.js:403 [diagrams] Módulo no inicializado
+renderDiagrams @ app.js:403
+navigate @ app.js:317
+(anónimas) @ app.js:299
