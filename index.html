@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Sistema Operativo Industrial Soberano">
+    <title>crgm.app | Industrial OS</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/industrial.css">
+    
+    <!-- Librerías Externas (QR) -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+    <!-- BARRA DE ESTADO -->
+    <div id="status-bar">
+        <div class="status-indicator">
+            <span id="net-dot" class="dot"></span>
+            <span id="net-text">INIT...</span>
+        </div>
+        <div class="status-indicator">
+            <span>⚡ </span><span id="bat-level">--%</span>
+        </div>
+    </div>
+
+    <!-- PANTALLA 1: ESCÁNER / HOME -->
+    <div id="view-scanner" class="viewport active">
+        <div class="scan-frame" id="scanner-container">
+            <div id="reader"></div>
+        </div>
+        <div class="info-panel">
+            <p id="scan-instruction">ESPERANDO TOKEN O ACTIVO...</p>
+            <div id="scan-result" style="display:none; border: 1px solid var(--accent-green); padding: 10px; color: var(--accent-green);"></div>
+        </div>
+        <button id="btn-scan-action" class="action-btn">ACTIVAR CÁMARA</button>
+    </div>
+
+    <!-- PANTALLA 2: EDITOR DE DIAGRAMAS -->
+    <div id="view-diagram" class="viewport" style="display:none;">
+        <div class="toolbar-top">
+            <span>MODO: VECTOR</span>
+            <button class="small-btn" onclick="diagramEditor.clear()">LIMPIAR</button>
+        </div>
+        <svg id="drawing-board">
+            <defs>
+                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#222" stroke-width="1"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+            <g id="layer-draw"></g>
+        </svg>
+        <div class="toolbar-bottom">
+            <button class="action-btn small" onclick="diagramEditor.save()">GUARDAR</button>
+            <button class="action-btn small" onclick="diagramEditor.load()">CARGAR</button>
+        </div>
+    </div>
+
+    <!-- PANTALLA 3: LOTO (SEGURIDAD) -->
+    <div id="view-loto" class="loto-overlay" style="display:none;">
+        <div class="loto-content">
+            <h1>⚠️ BLOQUEO LOTO ⚠️</h1>
+            <input type="text" id="loto-machine" placeholder="ID MÁQUINA (GT-XX)" class="loto-input">
+            <div class="checklist">
+                <label><input type="checkbox" id="check-volt"> 0 VOLTIOS CONFIRMADO</label>
+                <label><input type="checkbox" id="check-lock"> CANDADO PUESTO</label>
+            </div>
+            <button id="btn-loto-lock" class="loto-btn">APLICAR BLOQUEO</button>
+            <button id="btn-loto-unlock" class="loto-btn unlock" style="display:none;">RETIRAR BLOQUEO</button>
+        </div>
+    </div>
+
+    <!-- MENÚ DE NAVEGACIÓN INFERIOR -->
+    <nav id="bottom-nav">
+        <button onclick="app.switchView('scanner')">📸 SCAN</button>
+        <button onclick="app.switchView('diagram')">📐 PLANOS</button>
+        <button onclick="lotoManager.toggleUI()" style="color: var(--accent-alert);">🔒 LOTO</button>
+        <button onclick="backupManager.exportData()">💾 BACKUP</button>
+    </nav>
+
+    <!-- LOG DE SISTEMA -->
+    <div id="system-log"></div>
+
+    <!-- CARGA DE SCRIPTS (ORDEN IMPORTANTE) -->
+    <script src="js/database.js"></script>
+    <script src="js/modules/backup.js"></script>
+    <script src="js/modules/scanner.js"></script>
+    <script src="js/modules/diagrams.js"></script>
+    <script src="js/modules/loto.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>

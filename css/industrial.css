@@ -1,0 +1,85 @@
+:root {
+    --bg-color: #000000;
+    --panel-bg: #111111;
+    --accent-green: #00FF41;
+    --accent-alert: #FF3300;
+    --text-main: #E0E0E0;
+    --font-stack: 'Courier New', Courier, monospace;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: var(--font-stack);
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* UI GENERAL */
+button { font-family: var(--font-stack); cursor: pointer; }
+.viewport { flex: 1; position: relative; display: flex; flex-direction: column; }
+
+/* BARRA DE ESTADO */
+#status-bar {
+    background: var(--panel-bg);
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #333;
+    font-size: 11px;
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #555; display: inline-block; }
+.dot.active { background: var(--accent-green); box-shadow: 0 0 5px var(--accent-green); }
+.dot.offline { background: var(--accent-alert); }
+
+/* BOTONES INDUSTRIALES */
+.action-btn {
+    background: #002200;
+    color: var(--accent-green);
+    border: 1px solid var(--accent-green);
+    padding: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 10px;
+}
+.action-btn:active { background: var(--accent-green); color: black; }
+
+/* ESCÁNER */
+.scan-frame { flex: 1; background: #050505; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#reader { width: 100%; height: 100%; }
+
+/* DIAGRAMAS */
+#drawing-board { flex: 1; background: #080808; touch-action: none; }
+.toolbar-top, .toolbar-bottom { padding: 5px; background: #111; display: flex; gap: 5px; }
+.small-btn { background: #333; color: white; border: 1px solid #555; padding: 5px 10px; }
+
+/* LOTO (SEGURIDAD) */
+.loto-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(20, 0, 0, 0.95);
+    z-index: 9999;
+    border: 4px solid var(--accent-alert);
+    display: flex; align-items: center; justify-content: center;
+}
+.loto-content { text-align: center; width: 80%; }
+.loto-input { background: black; border: 1px solid #555; color: white; padding: 10px; width: 100%; margin: 10px 0; }
+.loto-btn { background: var(--accent-alert); color: black; font-weight: bold; border: none; padding: 15px; width: 100%; margin-top: 10px; }
+.checklist { text-align: left; margin: 20px 0; color: #aaa; }
+
+/* NAVEGACIÓN */
+#bottom-nav {
+    display: flex; border-top: 1px solid #333; background: #050505;
+}
+#bottom-nav button {
+    flex: 1; background: transparent; border: none; color: #888; padding: 15px 0; font-size: 10px;
+}
+#bottom-nav button:active { color: white; background: #222; }
+
+/* CONSOLA */
+#system-log {
+    height: 60px; background: #000; border-top: 1px solid #333;
+    font-size: 9px; color: #666; padding: 5px; overflow-y: auto;
+}
