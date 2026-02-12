@@ -786,3 +786,280 @@ input:focus, textarea:focus, select:focus {
 #bottom-nav .nav-item.active {
   color: var(--color-success);
 }
+
+/* ============================================
+   ⚡ FASE 7: UI MEJORADA
+   Inspector Tabs, Floating Toolbar, Minimap, Zoom
+   ============================================ */
+
+/* Inspector Tabs */
+.de-inspector-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-border);
+}
+.de-inspector-tab {
+  flex: 1;
+  padding: 0.4rem 0.3rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-dim);
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  min-width: unset;
+  min-height: unset;
+  margin-bottom: -2px;
+}
+.de-inspector-tab:hover {
+  color: var(--color-text);
+  background: var(--color-hover);
+}
+.de-inspector-tab.active {
+  color: var(--color-success);
+  border-bottom-color: var(--color-success);
+  font-weight: bold;
+}
+.de-tab-content {
+  display: none;
+}
+.de-tab-content.active {
+  display: block;
+}
+
+/* Floating Toolbar */
+.de-floating-toolbar {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+.de-floating-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  background: var(--color-toolbar-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+.de-floating-btn:hover {
+  background: var(--color-success-bg);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.de-floating-btn.active {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--color-bg);
+}
+.de-floating-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.de-floating-separator {
+  width: 1px;
+  background: var(--color-border);
+  margin: 4px 2px;
+}
+
+/* Minimap */
+.de-minimap {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 180px;
+  height: 120px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 10;
+  overflow: hidden;
+}
+.de-minimap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.de-minimap-viewport {
+  position: absolute;
+  border: 2px solid var(--color-success);
+  background: rgba(0,255,65,0.1);
+  pointer-events: none;
+}
+.de-minimap-toggle {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  color: var(--color-text-dim);
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.de-minimap-toggle:hover {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+/* Zoom Controls */
+.de-zoom-controls {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 10;
+}
+.de-zoom-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.de-zoom-btn:hover {
+  background: var(--color-success-bg);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.de-zoom-level {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  color: var(--color-text);
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  min-width: 36px;
+}
+
+/* Rulers */
+.de-ruler-h {
+  position: absolute;
+  top: 0;
+  left: 30px;
+  right: 0;
+  height: 20px;
+  background: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-border);
+  z-index: 5;
+}
+.de-ruler-v {
+  position: absolute;
+  left: 0;
+  top: 20px;
+  bottom: 0;
+  width: 30px;
+  background: var(--color-surface-alt);
+  border-right: 1px solid var(--color-border);
+  z-index: 5;
+}
+.de-ruler-corner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 30px;
+  height: 20px;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: var(--color-text-dim);
+}
+
+/* Zoom cursor states */
+.de-canvas-wrap.zoom-in { cursor: zoom-in; }
+.de-canvas-wrap.zoom-out { cursor: zoom-out; }
+.de-canvas-wrap.panning { cursor: grab; }
+.de-canvas-wrap.panning.active { cursor: grabbing; }
+
+/* Property grid for inspector */
+.de-prop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.de-prop-grid-full {
+  grid-column: 1 / -1;
+}
+
+/* Enhanced connection indicators */
+.de-connection-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success);
+  border-radius: 3px;
+  font-size: 0.65rem;
+  color: var(--color-success);
+  margin-right: 4px;
+}
+.de-connection-badge.busbar {
+  background: rgba(255,136,0,0.15);
+  border-color: #ff8800;
+  color: #ff8800;
+}
+
+/* Loading state for minimap */
+.de-minimap.loading::after {
+  content: '⟳';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  color: var(--color-text-dim);
+  animation: spin 2s linear infinite;
+}

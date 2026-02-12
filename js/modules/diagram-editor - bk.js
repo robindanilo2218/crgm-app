@@ -1766,207 +1766,110 @@ const COMPONENT_RELATIONSHIPS = {
  */
 class IECNomenclature {
   constructor() {
-    this.PRODUCT_PREFIXES = {
-      '4607': 'Corrugadora TWIN400/TERMINAL400',
-      'SPH1': 'Single Preheater B.0',
-      'ARS4': 'Rotary Shear',
-      'ATW4': 'Slitter',
-      'CRGM': 'Sistema CRGM'
-    };
-    
-    this.LOCATION_CODES = {
-      'M0': 'Portada / Índice',
-      'Q0': 'Cuadro eléctrico general',
-      'Q1': 'Cuadro auxiliar 1',
-      'Q2': 'Cuadro auxiliar 2',
-      'W0': 'Resumen de cables',
-      'P0': 'Lista de materiales',
-      'SR': 'Sistema de seguridad'
-    };
-    
-    this.COMPONENT_FAMILIES = {
-      // Protección
-      'QS': { family: 'protection', description: 'Interruptor seccionador', isParent: true },
-      'QF': { family: 'protection', description: 'Disyuntor', isParent: true },
-      'FU': { family: 'protection', description: 'Fusible', isParent: true },
-      'QM': { family: 'protection', description: 'Guardamotor', isParent: true },
-      'F': { family: 'protection', description: 'Relé térmico', isParent: true },
-      
-      // Control
-      'KM': { family: 'control', description: 'Contactor', isParent: true },
-      'KA': { family: 'control', description: 'Relé auxiliar', isParent: true },
-      'K': { family: 'control', description: 'Relé', isParent: true },
-      'SB': { family: 'control', description: 'Pulsador', isChild: true, parentFamily: ['KM', 'KA', 'K'] },
-      'S': { family: 'control', description: 'Interruptor', isChild: true, parentFamily: ['KM', 'KA', 'K'] },
-      
-      // Potencia
-      'M': { family: 'power', description: 'Motor', isChild: true, parentFamily: ['KM', 'QF', 'QM'] },
-      'T': { family: 'power', description: 'Transformador/VFD', isParent: true },
-      
-      // Indicadores
-      'H': { family: 'indication', description: 'Lámpara', isChild: true, parentFamily: ['KA', 'K'] },
-      'P': { family: 'indication', description: 'Señalización', isChild: true, parentFamily: ['KA', 'K'] },
-      
-      // Sensores
-      'B': { family: 'sensor', description: 'Sensor', isChild: true, parentFamily: ['KA', 'K'] },
-      'SP': { family: 'sensor', description: 'Presostato', isChild: true, parentFamily: ['KA', 'K'] },
-      
-      // Actuadores
-      'Y': { family: 'actuator', description: 'Electroválvula', isChild: true, parentFamily: ['KM', 'KA'] },
-      'U': { family: 'actuator', description: 'Electromagneto', isChild: true, parentFamily: ['KM', 'KA'] },
-      
-      // Borneras
-      'X': { family: 'terminal', description: 'Bornera', isNeutral: true },
-      'XS': { family: 'terminal', description: 'Toma corriente', isNeutral: true },
-      'XB': { family: 'terminal', description: 'Conector', isNeutral: true },
-      'PE': { family: 'terminal', description: 'Tierra', isNeutral: true }
-    };
-  }
-  
-  /**
-   * Parse IEC nomenclature string into components
-   * @param {string} nomenclature - Full IEC nomenclature
-   * @returns {Object} - Parsed components
-   */
-  parse(nomenclature) {
-    if (!nomenclature) return null;
-    
-    const regex = /^(?:=([^+]+))?(?:\+([^-]+))?(?:-([^:]+))?(?::(.+))?$/;
-    const match = nomenclature.match(regex);
-    
-    if (!match) return null;
-    
-    return {
-      product: match[1] || '',
-      location: match[2] || '',
-      identifier: match[3] || '',
-      terminal: match[4] || '',
-      full: nomenclature
-    };
-  }
-  
-  /**
-   * Generate IEC nomenclature from components
-   * @param {Object} components - {product, location, identifier, terminal}
-   * @returns {string} - Full IEC nomenclature
-   */
-  generate(components) {
-    let result = '';
-    if (components.product) result += `=${components.product}`;
-    if (components.location) result += `+${components.location}`;
-    if (components.identifier) result += `-${components.identifier}`;
-    if (components.terminal) result += `:${components.terminal}`;
-    return result;
-  }
-  
-  /**
-   * Get component family information
-   * @param {string} label - Component label (e.g., 'KA1', 'SB2')
-   * @returns {Object} - Family info
-   */
-  getComponentFamily(label) {
-    if (!label) return null;
-    
-    // Extract prefix (letters at the start)
-    const prefixMatch = label.match(/^([A-Z]+)/);
-    if (!prefixMatch) return null;
-    
-    const prefix = prefixMatch[1];
-    return this.COMPONENT_FAMILIES[prefix] || null;
-  }
-  
-  /**
-   * Check if two components are related (parent-child relationship)
-   * @param {string} label1 - First component label
-   * @param {string} label2 - Second component label
-   * @returns {Object} - Relationship info
-   */
-  getRelationship(label1, label2) {
-    const family1 = this.getComponentFamily(label1);
-    const family2 = this.getComponentFamily(label2);
-    
-    if (!family1 || !family2) return null;
-    
-    // Extract base identifiers (without suffixes)
-    const base1 = this.getBaseIdentifier(label1);
-    const base2 = this.getBaseIdentifier(label2);
-    
-    // Must have same base identifier to be related
-    if (base1 !== base2) return null;
-    
-    // Check parent-child relationships
-    if (family1.isParent && family2.isChild && family2.parentFamily?.includes(this.getPrefix(label1))) {
-      return { type: 'parent-child', parent: label1, child: label2 };
-    }
-    
-    if (family2.isParent && family1.isChild && family1.parentFamily?.includes(this.getPrefix(label2))) {
-      return { type: 'parent-child', parent: label2, child: label1 };
-    }
-    
-    // Check if both are children of same family (siblings)
-    if (family1.isChild && family2.isChild && 
-        family1.parentFamily?.some(p => family2.parentFamily?.includes(p))) {
-      return { type: 'siblings', components: [label1, label2] };
-    }
-    
-    return null;
-  }
-  
-  /**
-   * Get component prefix (letters only)
-   * @param {string} label - Component label
-   * @returns {string} - Prefix
-   */
-  getPrefix(label) {
-    const match = label.match(/^([A-Z]+)/);
-    return match ? match[1] : '';
-  }
-  
-  /**
-   * Get base identifier (removes contact suffixes like .1, .2, etc.)
-   * @param {string} label - Component label
-   * @returns {string} - Base identifier
-   */
-  getBaseIdentifier(label) {
-    // Remove contact suffixes (.13, .14, etc.) and keep base (KA1, KM2, etc.)
-    return label.replace(/\.\d+$/, '');
-  }
-  
-  /**
-   * Validate IEC nomenclature
-   * @param {string} nomenclature - Nomenclature to validate
-   * @returns {Object} - Validation result
-   */
-  validate(nomenclature) {
-    const parsed = this.parse(nomenclature);
-    const errors = [];
-    const warnings = [];
-    
-    if (!parsed) {
-      errors.push('Formato de nomenclatura inválido');
-      return { valid: false, errors, warnings };
-    }
-    
-    // Check product code
-    if (parsed.product && !this.PRODUCT_PREFIXES[parsed.product]) {
-      warnings.push(`Código de producto '${parsed.product}' no reconocido`);
-    }
-    
-    // Check location code
-    if (parsed.location && !this.LOCATION_CODES[parsed.location]) {
-      warnings.push(`Código de ubicación '${parsed.location}' no reconocido`);
-    }
-    
-    // Check identifier family
-    if (parsed.identifier) {
-      const family = this.getComponentFamily(parsed.identifier);
-      if (!family) {
-        warnings.push(`Identificador '${parsed.identifier}' no corresponde a una familia conocida`);
+    if (this.placingType) {
+      // Place new component
+      const def = IEC_COMPONENTS[this.placingType];
+      if (!def) {
+        this.statusEl.textContent = '❌ Tipo de componente no válido';
+        return;
       }
+
+      const width = def.defaultWidth || 1;
+      const height = def.defaultHeight || 1;
+
+      // Check if area is available
+      if (!this._isAreaFree(col, row, width, height)) {
+        this.statusEl.textContent = '⚠️ Posición ocupada o fuera de límites';
+        return;
+      }
+
+      // Create new component
+      const label = this._nextLabel(this.placingType);
+      const comp = {
+        id: `c_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        type: this.placingType,
+        label: label,
+        col: col,
+        row: row,
+        width: width,
+        height: height,
+        props: {}
+      };
+
+      this.components.push(comp);
+      this.placingType = null;
+      
+      // Update palette state
+      this.paletteEl.querySelectorAll('.de-palette-item').forEach(b => b.classList.remove('active'));
+      
+      this.statusEl.textContent = `✅ ${def.name} colocado: ${label} (${width}×${height}) en Col ${col + 1}, Fila ${row + 1}`;
+
+      // Push to history after placing component
+      this._pushHistory();
+
+      // Auto-connect to component above (same column) - only for single-cell components
+      if (width === 1 && height === 1) {
+        const above = this._getComponentAt(col, row - 1);
+        if (above) {
+          const defAbove = IEC_COMPONENTS[above.type];
+          if (defAbove && defAbove.terminals && defAbove.terminals.bottom && def.terminals && def.terminals.top) {
+            const alreadyConnected = this.wires.find(w =>
+              (w.from === above.id && w.to === comp.id) || (w.from === comp.id && w.to === above.id)
+            );
+            if (!alreadyConnected) {
+              this.wires.push({
+                id: `w_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                from: above.id,
+                fromTerminal: 'bottom',
+                to: comp.id,
+                toTerminal: 'top',
+                section: '1.5',
+                color: 'Negro',
+                cableType: 'H07V-K',
+                length: ''
+              });
+              this.statusEl.textContent += ' 🔗 Auto-conectado';
+            }
+          }
+        }
+      }
+      this._updateDeleteButton();
+    } else {
+      // Enhanced selection with Ctrl+Click for multiple selection
+      const comp = this._getComponentAt(col, row);
+      if (comp) {
+        if (e.ctrlKey || e.metaKey) {
+          // Ctrl+Click: Toggle component in selection
+          if (this.selectedComponents.has(comp.id)) {
+            this.selectedComponents.delete(comp.id);
+            this.statusEl.textContent = `➖ Deseleccionado: ${comp.label} (${this.selectedComponents.size} seleccionados)`;
+          } else {
+            this.selectedComponents.add(comp.id);
+            this.statusEl.textContent = `➕ Seleccionado: ${comp.label} (${this.selectedComponents.size} seleccionados)`;
+          }
+        } else {
+          // Normal click: Select only this component
+          if (this.selectedComponents.size === 1 && this.selectedComponents.has(comp.id)) {
+            // Already selected → deselect (toggle off)
+            this.selectedComponents.clear();
+            this.statusEl.textContent = '❌ Componente deseleccionado';
+          } else {
+            this.selectedComponents.clear();
+            this.selectedComponents.add(comp.id);
+          }
+        }
+      } else {
+        // Click on empty space: deselect all
+        this.selectedComponents.clear();
+      }
+      
+      this._updateDeleteButton();
+      this._updateInspectorForSelection();
     }
     
-    return { valid: errors.length === 0, errors, warnings };
+    this.render();
   }
+
 }
 
 // ============================================
@@ -2180,111 +2083,6 @@ class DiagramEditor {
   // HANDLE CLICK EVENTS
   // ============================================
   _handleClick(e, col, row) {
-    if (this.placingType) {
-      // Place new component
-      const def = IEC_COMPONENTS[this.placingType];
-      if (!def) {
-        this.statusEl.textContent = '❌ Tipo de componente no válido';
-        return;
-      }
-
-      const width = def.defaultWidth || 1;
-      const height = def.defaultHeight || 1;
-
-      // Check if area is available
-      if (!this._isAreaFree(col, row, width, height)) {
-        this.statusEl.textContent = '⚠️ Posición ocupada o fuera de límites';
-        return;
-      }
-
-      // Create new component
-      const label = this._nextLabel(this.placingType);
-      const comp = {
-        id: `c_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-        type: this.placingType,
-        label: label,
-        col: col,
-        row: row,
-        width: width,
-        height: height,
-        props: {}
-      };
-
-      this.components.push(comp);
-      this.placingType = null;
-      
-      // Update palette state
-      this.paletteEl.querySelectorAll('.de-palette-item').forEach(b => b.classList.remove('active'));
-      
-      this.statusEl.textContent = `✅ ${def.name} colocado: ${label} (${width}×${height}) en Col ${col + 1}, Fila ${row + 1}`;
-
-      // Push to history after placing component
-      this._pushHistory();
-
-      // Auto-connect to component above (same column) - only for single-cell components
-      if (width === 1 && height === 1) {
-        const above = this._getComponentAt(col, row - 1);
-        if (above) {
-          const defAbove = IEC_COMPONENTS[above.type];
-          if (defAbove && defAbove.terminals && defAbove.terminals.bottom && def.terminals && def.terminals.top) {
-            const alreadyConnected = this.wires.find(w =>
-              (w.from === above.id && w.to === comp.id) || (w.from === comp.id && w.to === above.id)
-            );
-            if (!alreadyConnected) {
-              this.wires.push({
-                id: `w_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-                from: above.id,
-                fromTerminal: 'bottom',
-                to: comp.id,
-                toTerminal: 'top',
-                section: '1.5',
-                color: 'Negro',
-                cableType: 'H07V-K',
-                length: ''
-              });
-              this.statusEl.textContent += ' 🔗 Auto-conectado';
-            }
-          }
-        }
-      }
-      this._updateDeleteButton();
-    } else {
-      // Enhanced selection with Ctrl+Click for multiple selection
-      const comp = this._getComponentAt(col, row);
-      if (comp) {
-        if (e.ctrlKey || e.metaKey) {
-          // Ctrl+Click: Toggle component in selection
-          if (this.selectedComponents.has(comp.id)) {
-            this.selectedComponents.delete(comp.id);
-            this.statusEl.textContent = `➖ Deseleccionado: ${comp.label} (${this.selectedComponents.size} seleccionados)`;
-          } else {
-            this.selectedComponents.add(comp.id);
-            this.statusEl.textContent = `➕ Seleccionado: ${comp.label} (${this.selectedComponents.size} seleccionados)`;
-          }
-        } else {
-          // Normal click: Select only this component
-          if (this.selectedComponents.size === 1 && this.selectedComponents.has(comp.id)) {
-            // Already selected → deselect (toggle off)
-            this.selectedComponents.clear();
-            this.statusEl.textContent = '❌ Componente deseleccionado';
-          } else {
-            this.selectedComponents.clear();
-            this.selectedComponents.add(comp.id);
-          }
-        }
-      } else {
-        // Click on empty space: deselect all
-        this.selectedComponents.clear();
-      }
-      
-      this._updateDeleteButton();
-      this._updateInspectorForSelection();
-    }
-    
-    this.render();
-  }
-
-  _bindToolbarEvents() {
     this.toolbarEl.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
@@ -2920,6 +2718,419 @@ class DiagramEditor {
     return found || { hex: '#00ff41', name: colorName };
   }
 
+  // ============================================
+  // ⚡ FASE 6: IEC 750/81346 NOMENCLATURE SYSTEM
+  // ============================================
+
+  constructor() {
+    this.PRODUCT_PREFIXES = {
+      '4607': 'Corrugadora TWIN400/TERMINAL400',
+      'SPH1': 'Single Preheater B.0',
+      'ARS4': 'Rotary Shear',
+      'ATW4': 'Slitter',
+      'CRGM': 'Sistema CRGM'
+    };
+    
+    this.LOCATION_CODES = {
+      'M0': 'Portada / Índice',
+      'Q0': 'Cuadro eléctrico general',
+      'Q1': 'Cuadro auxiliar 1',
+      'Q2': 'Cuadro auxiliar 2',
+      'W0': 'Resumen de cables',
+      'P0': 'Lista de materiales',
+      'SR': 'Sistema de seguridad'
+    };
+    
+    this.COMPONENT_FAMILIES = {
+      // Protección
+      'QS': { family: 'protection', description: 'Interruptor seccionador', isParent: true },
+      'QF': { family: 'protection', description: 'Disyuntor', isParent: true },
+      'FU': { family: 'protection', description: 'Fusible', isParent: true },
+      'QM': { family: 'protection', description: 'Guardamotor', isParent: true },
+      'F': { family: 'protection', description: 'Relé térmico', isParent: true },
+      
+      // Control
+      'KM': { family: 'control', description: 'Contactor', isParent: true },
+      'KA': { family: 'control', description: 'Relé auxiliar', isParent: true },
+      'K': { family: 'control', description: 'Relé', isParent: true },
+      'SB': { family: 'control', description: 'Pulsador', isChild: true, parentFamily: ['KM', 'KA', 'K'] },
+      'S': { family: 'control', description: 'Interruptor', isChild: true, parentFamily: ['KM', 'KA', 'K'] },
+      
+      // Potencia
+      'M': { family: 'power', description: 'Motor', isChild: true, parentFamily: ['KM', 'QF', 'QM'] },
+      'T': { family: 'power', description: 'Transformador/VFD', isParent: true },
+      
+      // Indicadores
+      'H': { family: 'indication', description: 'Lámpara', isChild: true, parentFamily: ['KA', 'K'] },
+      'P': { family: 'indication', description: 'Señalización', isChild: true, parentFamily: ['KA', 'K'] },
+      
+      // Sensores
+      'B': { family: 'sensor', description: 'Sensor', isChild: true, parentFamily: ['KA', 'K'] },
+      'SP': { family: 'sensor', description: 'Presostato', isChild: true, parentFamily: ['KA', 'K'] },
+      
+      // Actuadores
+      'Y': { family: 'actuator', description: 'Electroválvula', isChild: true, parentFamily: ['KM', 'KA'] },
+      'U': { family: 'actuator', description: 'Electromagneto', isChild: true, parentFamily: ['KM', 'KA'] },
+      
+      // Borneras
+      'X': { family: 'terminal', description: 'Bornera', isNeutral: true },
+      'XS': { family: 'terminal', description: 'Toma corriente', isNeutral: true },
+      'XB': { family: 'terminal', description: 'Conector', isNeutral: true },
+      'PE': { family: 'terminal', description: 'Tierra', isNeutral: true }
+    };
+  }
+  
+  /**
+   * Parse IEC nomenclature string into components
+   * @param {string} nomenclature - Full IEC nomenclature
+   * @returns {Object} - Parsed components
+   */
+  parse(nomenclature) {
+    if (!nomenclature) return null;
+    
+    const regex = /^(?:=([^+]+))?(?:\+([^-]+))?(?:-([^:]+))?(?::(.+))?$/;
+    const match = nomenclature.match(regex);
+    
+    if (!match) return null;
+    
+    return {
+      product: match[1] || '',
+      location: match[2] || '',
+      identifier: match[3] || '',
+      terminal: match[4] || '',
+      full: nomenclature
+    };
+  }
+  
+  /**
+   * Generate IEC nomenclature from components
+   * @param {Object} components - {product, location, identifier, terminal}
+   * @returns {string} - Full IEC nomenclature
+   */
+  generate(components) {
+    let result = '';
+    if (components.product) result += `=${components.product}`;
+    if (components.location) result += `+${components.location}`;
+    if (components.identifier) result += `-${components.identifier}`;
+    if (components.terminal) result += `:${components.terminal}`;
+    return result;
+  }
+  
+  /**
+   * Get component family information
+   * @param {string} label - Component label (e.g., 'KA1', 'SB2')
+   * @returns {Object} - Family info
+   */
+  getComponentFamily(label) {
+    if (!label) return null;
+    
+    // Extract prefix (letters at the start)
+    const prefixMatch = label.match(/^([A-Z]+)/);
+    if (!prefixMatch) return null;
+    
+    const prefix = prefixMatch[1];
+    return this.COMPONENT_FAMILIES[prefix] || null;
+  }
+  
+  /**
+   * Check if two components are related (parent-child relationship)
+   * @param {string} label1 - First component label
+   * @param {string} label2 - Second component label
+   * @returns {Object} - Relationship info
+   */
+  getRelationship(label1, label2) {
+    const family1 = this.getComponentFamily(label1);
+    const family2 = this.getComponentFamily(label2);
+    
+    if (!family1 || !family2) return null;
+    
+    // Extract base identifiers (without suffixes)
+    const base1 = this.getBaseIdentifier(label1);
+    const base2 = this.getBaseIdentifier(label2);
+    
+    // Must have same base identifier to be related
+    if (base1 !== base2) return null;
+    
+    // Check parent-child relationships
+    if (family1.isParent && family2.isChild && family2.parentFamily?.includes(this.getPrefix(label1))) {
+      return { type: 'parent-child', parent: label1, child: label2 };
+    }
+    
+    if (family2.isParent && family1.isChild && family1.parentFamily?.includes(this.getPrefix(label2))) {
+      return { type: 'parent-child', parent: label2, child: label1 };
+    }
+    
+    // Check if both are children of same family (siblings)
+    if (family1.isChild && family2.isChild && 
+        family1.parentFamily?.some(p => family2.parentFamily?.includes(p))) {
+      return { type: 'siblings', components: [label1, label2] };
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Get component prefix (letters only)
+   * @param {string} label - Component label
+   * @returns {string} - Prefix
+   */
+  getPrefix(label) {
+    const match = label.match(/^([A-Z]+)/);
+    return match ? match[1] : '';
+  }
+  
+  /**
+   * Get base identifier (removes contact suffixes like .1, .2, etc.)
+   * @param {string} label - Component label
+   * @returns {string} - Base identifier
+   */
+  getBaseIdentifier(label) {
+    // Remove contact suffixes (.13, .14, etc.) and keep base (KA1, KM2, etc.)
+    return label.replace(/\.\d+$/, '');
+  }
+  
+  /**
+   * Validate IEC nomenclature
+   * @param {string} nomenclature - Nomenclature to validate
+   * @returns {Object} - Validation result
+   */
+  validate(nomenclature) {
+    const parsed = this.parse(nomenclature);
+    const errors = [];
+    const warnings = [];
+    
+    if (!parsed) {
+      errors.push('Formato de nomenclatura inválido');
+      return { valid: false, errors, warnings };
+    }
+    
+    // Check product code
+    if (parsed.product && !this.PRODUCT_PREFIXES[parsed.product]) {
+      warnings.push(`Código de producto '${parsed.product}' no reconocido`);
+    }
+    
+    // Check location code
+    if (parsed.location && !this.LOCATION_CODES[parsed.location]) {
+      warnings.push(`Código de ubicación '${parsed.location}' no reconocido`);
+    }
+    
+    // Check identifier family
+    if (parsed.identifier) {
+      const family = this.getComponentFamily(parsed.identifier);
+      if (!family) {
+        warnings.push(`Identificador '${parsed.identifier}' no corresponde a una familia conocida`);
+      }
+    }
+    
+    return { valid: errors.length === 0, errors, warnings };
+  }
+}
+
+  // ============================================
+  // TOOLBAR EVENTS
+  // ============================================
+  _bindToolbarEvents() {
+    this.container = containerEl;
+    this.diagram = diagram;
+
+    // ⚡ FASE 6: IEC Nomenclature system
+    this.iecNomenclature = new IECNomenclature();
+
+    // Multi-page support
+    this.pages = diagram.pages || [{
+      id: 'page_1',
+      name: 'Hoja 1',
+      type: 'general',
+      elements: diagram.elements || [],
+      wires: diagram.wires || [],
+      counters: diagram.counters || {},
+      rows: diagram.rows || 12,
+      busbars: diagram.busbars || [],
+      busbarConnections: diagram.busbarConnections || []
+    }];
+    this.currentPageIndex = 0;
+    this._syncCurrentPage();
+
+    // Work mode
+    this.workMode = diagram.workMode || 'edicion';
+
+    // Canvas state
+    this.COLS = 10;
+    this.CELL_H = 60;
+    this.CELL_W = 80;
+    this.canvasW = this.CELL_W * this.COLS;
+    this.canvasH = this.CELL_H * this.ROWS;
+
+    // Enhanced interaction state
+    this.selectedComponents = new Set();
+    this.placingType = null;
+    this.hoverCell = null;
+    this.dragging = null;
+    this._onSave = null;
+    this._colors = {};
+
+    // Mouse interaction state
+    this.dragMode = null;
+    this.resizeHandle = null;
+    this.dragStartPos = null;
+    this.dragStartComponents = null;
+    
+    // Clipboard system
+    this.clipboard = [];
+
+    // History system
+    this.history = [];
+    this.historyIndex = -1;
+    this.maxHistory = 50;
+
+    // Legacy drag state
+    this.draggedComponent = null;
+    this.dragOffset = { x: 0, y: 0 };
+
+    // Cable management
+    this.cableCounter = diagram.cableCounter || 1;
+    
+    // Cross-references system
+    this.crossReferences = new Map();
+    this.showCrossReferences = true;
+
+    // Build DOM
+    this._buildDOM();
+
+    // Setup canvas
+    this.ctx = this.canvas.getContext('2d');
+
+    // Bind events
+    this._bindCanvasEvents();
+    this._bindToolbarEvents();
+    this._bindPageBarEvents();
+    this._bindKeyboardShortcuts();
+
+    // Render palette
+    this._renderPalette();
+    this._renderPageBar();
+
+    // Initial render
+    this._boundResize = () => this._handleResize();
+    window.addEventListener('resize', this._boundResize);
+    this._handleResize();
+
+    // Save initial state
+    this._pushHistory();
+
+    this.statusEl.textContent = `✅ Editor listo — ${this.components.length} componentes`;
+  }
+
+  // ============================================
+  // READONLY GETTER
+  // ============================================
+  get isReadonly() {
+    const mode = WORK_MODES[this.workMode];
+    return mode ? mode.readonly : false;
+  }
+
+  // ============================================
+  // SYNC CURRENT PAGE
+  // ============================================
+  _syncCurrentPage() {
+    const page = this.pages[this.currentPageIndex];
+    if (!page) return;
+    this.components = page.elements || [];
+    this.wires = page.wires || [];
+    this.counters = page.counters || {};
+    this.ROWS = page.rows || 12;
+    this.activeBusbars = page.busbars || [];
+    this.busbarConnections = page.busbarConnections || [];
+  }
+
+  _saveCurrentPage() {
+    const page = this.pages[this.currentPageIndex];
+    if (!page) return;
+    page.elements = this.components;
+    page.wires = this.wires;
+    page.counters = this.counters;
+    page.rows = this.ROWS;
+    page.busbars = this.activeBusbars || [];
+    page.busbarConnections = this.busbarConnections || [];
+  }
+
+  // ============================================
+  // BUILD DOM
+  // ============================================
+  _buildDOM() {
+    const modeInfo = WORK_MODES[this.workMode] || WORK_MODES.edicion;
+
+    this.container.innerHTML = `
+      <div style="display:flex;flex-direction:column;height:calc(100vh - var(--header-height) - var(--status-bar-height) - 16px);overflow:hidden;">
+        <!-- TOOLBAR -->
+        <div class="de-toolbar">
+          <button class="de-btn de-btn-back" data-action="back">← Volver</button>
+          <span class="de-title">⚡ ${this._escHtml(this.diagram.name)}</span>
+          <div class="de-toolbar-actions">
+            <button class="de-btn" data-action="undo" title="Deshacer (Ctrl+Z)">↩️</button>
+            <button class="de-btn" data-action="redo" title="Rehacer (Ctrl+Y)">↪️</button>
+            <button class="de-btn" data-action="busbars" title="⚡ FASE 1: Gestionar Barras Horizontales">⚡ Barras</button>
+            <button class="de-btn" data-action="titleblock">✏️ Cajetín</button>
+            <button class="de-btn" data-action="xref">🔀 Ref.</button>
+            <button class="de-btn" data-action="csv-export">📤 CSV</button>
+            <button class="de-btn" data-action="csv-import">📥 CSV</button>
+            <button class="de-btn" data-action="pdf">🖨️ PDF</button>
+            <button class="de-btn de-btn-delete" data-action="delete" style="display:none;background:var(--color-danger-bg,#330000);color:var(--color-danger,#ff4444);border-color:var(--color-danger,#ff4444);" title="Eliminar componente seleccionado">🗑️ Eliminar</button>
+            <button class="de-btn de-btn-save" data-action="save">💾 Guardar</button>
+          </div>
+        </div>
+
+        <!-- MODE BAR -->
+        <div class="de-mode-bar" id="de-mode-bar">
+          <span class="de-mode-label">Modo:</span>
+          <select class="de-mode-select">
+            <option value="edicion" ${this.workMode === 'edicion' ? 'selected' : ''}>✏️ Edición</option>
+            <option value="revision" ${this.workMode === 'revision' ? 'selected' : ''}>👁️ Revisión</option>
+            <option value="finalizado" ${this.workMode === 'finalizado' ? 'selected' : ''}>🔒 Finalizado</option>
+          </select>
+          <span class="de-mode-indicator" style="color:${modeInfo.color}">${modeInfo.icon} ${modeInfo.name}</span>
+        </div>
+
+        <!-- MAIN AREA -->
+        <div style="display:flex;flex:1;overflow:hidden;">
+          <!-- SIDEBAR / PALETTE -->
+          <div class="de-sidebar" id="de-palette"></div>
+
+          <!-- CENTER: Canvas -->
+          <div class="de-center">
+            <div class="de-canvas-wrap" id="de-canvas-wrap">
+              <canvas class="de-canvas" id="de-canvas"></canvas>
+            </div>
+            <!-- PAGE BAR -->
+            <div class="de-page-bar" id="de-page-bar"></div>
+            <!-- STATUS BAR -->
+            <div class="de-status" id="de-status">Listo</div>
+          </div>
+
+          <!-- INSPECTOR -->
+          <div class="de-inspector" id="de-inspector">
+            <h3>Inspector</h3>
+            <p class="de-inspector-empty">Selecciona un componente para inspeccionar sus propiedades.</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Cache DOM refs
+    this.canvas = this.container.querySelector('#de-canvas');
+    this.inspectorEl = this.container.querySelector('#de-inspector');
+    this.statusEl = this.container.querySelector('#de-status');
+    this.pageBarEl = this.container.querySelector('#de-page-bar');
+    this.modeIndicatorEl = this.container.querySelector('#de-mode-bar');
+    this.paletteEl = this.container.querySelector('#de-palette');
+    this.toolbarEl = this.container.querySelector('.de-toolbar');
+    this.canvasWrapEl = this.container.querySelector('#de-canvas-wrap');
+  }
+
+  // Helper to escape HTML in template literals
+  _escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
   // ============================================
   // HELPER METHODS
@@ -5690,160 +5901,6 @@ class DiagramEditor {
       rows: this.ROWS
     };
   }
-}
-
-// ============================================
-// ⚡ FASE 6: GLOBAL HELPER FUNCTIONS FOR CROSS-REFERENCES
-// ============================================
-
-/**
- * Calculate cross-references across all pages
- * Identifies components that appear on multiple pages
- * @param {Array} pages - Array of page objects
- * @returns {Object} - Map of component labels to their locations
- */
-function calculateCrossReferences(pages) {
-  if (!pages || pages.length === 0) return {};
-  
-  const crossRefs = {};
-  
-  // Build index of all components across all pages
-  pages.forEach((page, pageIndex) => {
-    const elements = page.elements || [];
-    
-    elements.forEach(comp => {
-      if (!comp.label) return;
-      
-      // Initialize array for this label if not exists
-      if (!crossRefs[comp.label]) {
-        crossRefs[comp.label] = [];
-      }
-      
-      // Add location info
-      crossRefs[comp.label].push({
-        pageIndex: pageIndex,
-        pageName: page.name,
-        pageType: page.type,
-        col: comp.col,
-        row: comp.row,
-        componentId: comp.id
-      });
-    });
-  });
-  
-  // Filter to only components that appear on multiple pages
-  const result = {};
-  Object.entries(crossRefs).forEach(([label, locations]) => {
-    if (locations.length > 1) {
-      result[label] = locations;
-    }
-  });
-  
-  return result;
-}
-
-/**
- * Draw cross-reference indicators on canvas for a component
- * Shows which other pages contain the same component
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Object} comp - Component object
- * @param {Object} crossRefs - Cross-reference map from calculateCrossReferences
- * @param {number} currentPageIndex - Index of current page
- */
-function drawCrossReferences(ctx, comp, crossRefs, currentPageIndex) {
-  if (!comp || !comp.label || !crossRefs) return;
-  
-  const refs = crossRefs[comp.label];
-  if (!refs || refs.length <= 1) return; // No cross-references
-  
-  // Filter to other pages only
-  const otherPages = refs.filter(ref => ref.pageIndex !== currentPageIndex);
-  if (otherPages.length === 0) return;
-  
-  // Calculate position for cross-reference indicator
-  const compX = comp.col * 80; // CELL_W default
-  const compY = comp.row * 60; // CELL_H default
-  const compW = (comp.width || 1) * 80;
-  const compH = (comp.height || 1) * 60;
-  
-  // Draw cross-reference badge in top-right corner
-  const badgeX = compX + compW - 4;
-  const badgeY = compY + 4;
-  const badgeSize = 12;
-  
-  // Badge background
-  ctx.fillStyle = 'rgba(255, 170, 0, 0.9)';
-  ctx.beginPath();
-  ctx.arc(badgeX, badgeY, badgeSize, 0, Math.PI * 2);
-  ctx.fill();
-  
-  // Badge border
-  ctx.strokeStyle = '#ffaa00';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(badgeX, badgeY, badgeSize, 0, Math.PI * 2);
-  ctx.stroke();
-  
-  // Badge text (number of other pages)
-  ctx.fillStyle = '#000000';
-  ctx.font = 'bold 9px Courier New';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(String(otherPages.length), badgeX, badgeY);
-  
-  // Draw page references below the badge
-  ctx.fillStyle = 'rgba(255, 170, 0, 0.8)';
-  ctx.font = '7px Courier New';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-  
-  let yOffset = badgeY + badgeSize + 2;
-  otherPages.slice(0, 2).forEach(ref => { // Show max 2 references
-    const refText = `→${ref.pageIndex + 1}`;
-    ctx.fillText(refText, badgeX - 8, yOffset);
-    yOffset += 8;
-  });
-  
-  // Reset text alignment
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-}
-
-/**
- * Get IEC nomenclature breakdown for a component label
- * Parses component label into its IEC parts
- * @param {string} label - Component label (e.g., 'KA1', 'QF2')
- * @param {string} pageType - Type of current page
- * @param {string} machineCode - Machine code (e.g., '4607', 'CRGM')
- * @returns {Object} - Breakdown of IEC nomenclature
- */
-function getIECNomenclatureBreakdown(label, pageType, machineCode) {
-  if (!label) return null;
-  
-  // Extract prefix and number
-  const match = label.match(/^([A-Z]+)(\d+)(.*)$/);
-  if (!match) return { label, prefix: '', number: '', suffix: '', full: label };
-  
-  const [, prefix, number, suffix] = match;
-  
-  // Get page IEC code
-  const pageTypeInfo = PAGE_TYPES[pageType] || PAGE_TYPES.general;
-  const locationCode = pageTypeInfo.iecCode || '+Q0';
-  
-  // Build full IEC nomenclature
-  const fullNomenclature = `=${machineCode || 'CRGM'}${locationCode}-${label}`;
-  
-  return {
-    label: label,
-    prefix: prefix,
-    number: number,
-    suffix: suffix,
-    product: machineCode || 'CRGM',
-    location: locationCode,
-    identifier: label,
-    full: fullNomenclature,
-    description: `Producto: ${machineCode || 'CRGM'}, Ubicación: ${locationCode}, Componente: ${label}`
-  };
 }
 
 export { DiagramEditor, IEC_COMPONENTS, CATEGORIES };
